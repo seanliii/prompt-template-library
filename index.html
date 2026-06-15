@@ -181,7 +181,7 @@ header {
   <div class="search-inner">
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="搜索模板名称、描述、分类..." oninput="render()">
+      <input type="text" id="searchInput" placeholder="搜索模板名称、描述、分类..." oninput="onSearch()">
     </div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="setLevel('all',this)">全部</button>
@@ -811,6 +811,16 @@ function toggleFav(id) {
 
 function updateFavCount() {
   document.getElementById('favCount').textContent = favs.length;
+}
+
+function onSearch() {
+  // 搜索时自动切回全部分类，避免分类+搜索叠加导致空结果
+  if (document.getElementById('searchInput').value && currentCat !== 'all') {
+    currentCat = 'all';
+    document.querySelectorAll('.cat-item').forEach(b => b.classList.toggle('active', b.dataset.cat === 'all'));
+    document.getElementById('gridTitle').textContent = '所有模板';
+  }
+  render();
 }
 
 function setLevel(l, btn) {
