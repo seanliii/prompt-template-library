@@ -904,11 +904,22 @@ function renderCats() {
 
 function quickCopy(id) {
   const t = DATA.find(x => x.id === id);
-  navigator.clipboard.writeText(t.prompt).then(() => {
-    const btn = document.getElementById('copy-'+id);
+  const btn = document.getElementById('copy-'+id);
+  const doSuccess = () => {
     if (btn) { btn.textContent = '✅'; btn.classList.add('done'); setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('done'); }, 1500); }
     showToast('✅ Prompt 已复制到剪贴板');
-  });
+  };
+  const doFail = () => {
+    // fallback: select text via textarea
+    const ta = document.createElement('textarea');
+    ta.value = t.prompt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); doSuccess(); } catch(e) { showToast('❌ 复制失败，请手动复制'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(t.prompt).then(doSuccess).catch(doFail);
+  } else { doFail(); }
 }
 
 function openModal(id) {
@@ -941,12 +952,22 @@ function closeModal() {
 
 function copyModal() {
   if (!currentModal) return;
-  navigator.clipboard.writeText(currentModal.prompt).then(() => {
-    const btn = document.getElementById('mCopyBtn');
+  const btn = document.getElementById('mCopyBtn');
+  const doSuccess = () => {
     btn.textContent = '✅ 已复制！'; btn.classList.add('done');
     setTimeout(() => { btn.textContent = '📋 复制 Prompt'; btn.classList.remove('done'); }, 2000);
     showToast('✅ Prompt 已复制到剪贴板');
-  });
+  };
+  const doFail = () => {
+    const ta = document.createElement('textarea');
+    ta.value = currentModal.prompt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); doSuccess(); } catch(e) { showToast('❌ 复制失败，请手动复制'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(currentModal.prompt).then(doSuccess).catch(doFail);
+  } else { doFail(); }
 }
 
 function toggleFavModal() {
